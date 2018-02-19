@@ -3,7 +3,6 @@ import threading
 from time import sleep
 import datetime as dt
 import picamera
-#import logging
 
 #GPIO ports: input 4 for Channel A, input 14 for Channel B
 Enc_A = 4

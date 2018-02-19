@@ -35,6 +35,7 @@ def init_camera():
     global camera
     camera = picamera.PiCamera()
     camera.resolution = (1920,1080)
+    camera.framerate = 30
     print('camera initialized')
     camera.annotate_frame_num=True
 
@@ -65,23 +66,29 @@ def main():
     newCounter = 0
     turnCounter = 0
     init_encoder()
+    init_camera()
     start = dt.datetime.now()
     fn_stamp=start.strftime('%Y-%m-%d_%H:%M:%S')
-    logging.basicConfig(filename='test'+ fn_stamp +'.log',filemode='a',format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt='%H:%M:%S', level=logging.DEBUG)
-    while (dt.datetime.now()-start).seconds < 30:#True:
+    vid_name=savepath+"video_eye" + fn_stamp +".h264"
+    f=open(savepath+'treadmill'+ fn_stamp +'.csv','a')
+    g=open(savepath+'video_timestamp'+ fn_stamp + '.csv','a')
+    camera.start_recording(vid_name,format='h264')
+    #camera.start_preview()
+    while (dt.datetime.now()-start).seconds < 10:#True:
+        camera.annotate_text=dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
         sleep(0.1)
         LockRotary.acquire()
         newCounter = rotaryCounter # get counter value
         LockRotary.release()
+        g.write(str(camera.frame)+"\n")
         if(newCounter != 0):
-            if (rotaryCounter>125):
-                newCounter = 0
-                rotaryCounter = 0
-                turnCounter += 1
-            logging.info('Counter %s',newCounter)
-            logging.info('Turn %s', turnCounter)
-            print(newCounter, turnCounter)
 
+            f.write(dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')+"\t"+str(rotaryCounter)+"\n")
+            print(newCounter, turnCounter)
+    camera.stop_recording()
+    #camera_stop_preview()
+    f.close()
+    g.close()
 
 def maintriggered():
     global camera, rotaryCounter, LockRotary, istriggered, newCounter, f, g, vid_name, isrecording,start
@@ -94,15 +101,13 @@ def maintriggered():
     istriggered = 0 # is the trigger input up
 
     start = dt.datetime.now()
-    #logging.basicConfig(filename='test'+ fn_stamp +'.log',filemode='a',format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt='%H:%M:%S', level=logging.DEBUG)
-    
-    #stream=picamera.PiCameraCircularIO(camera, seconds=3)
+
 
 
     GPIO.add_event_detect(27, GPIO.BOTH, callback=triggercallback)    
     try:
         while (True):
-            while ((dt.datetime.now()-start).seconds<200) and (istriggered==1):#(GPIO.input(27)==1):
+            while ((dt.datetime.now()-start).seconds<20) and (istriggered==1):
                 camera.annotate_text=dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
                 sleep(0.1)
                 LockRotary.acquire()
@@ -113,7 +118,7 @@ def maintriggered():
                 if (newCounter != 0):
                     if not f.closed:
                         f.write(dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')+"\t"+str(rotaryCounter)+"\n")
-                        ##logging.info('Counter %s',newCounter)
+
     except KeyboardInterrupt:
         camera.stop_preview()
         pass
@@ -140,13 +145,11 @@ def triggercallback(channel):
         isrecording=1
         f=open(savepath+'treadmill'+ fn_stamp +'.csv','a')
         g=open(savepath+'video_timestamp'+ fn_stamp + '.csv','a')
-        #logging.basicConfig(filename='test'+ fn_stamp +'.log',filemode='a',format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt='%H:%M:%S', level=logging.DEBUG)
     else:
         print('trigger down')
         istriggered=0
         f.close()
         g.close()
-        #camera.stop_preview()
         camera.stop_recording()
         isrecording=0
         
@@ -154,5 +157,3 @@ def triggercallback(channel):
 
 #main()
 maintriggered()
-    
-

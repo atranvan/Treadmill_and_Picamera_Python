@@ -13,6 +13,7 @@ def init_camera():
     global camera
     camera = picamera.PiCamera()
     camera.resolution = (1920,1080)
+    camera.framerate = 30
     print('camera initialized')
     camera.annotate_frame_num=True
     camera.annotate_text=dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
@@ -37,12 +38,7 @@ def maintriggered():
     GPIO.setup(27, GPIO.IN, pull_up_down = GPIO.PUD_DOWN) # input to detect start trigger
     istriggered = 0 # is the trigger input up
 
-    #start = dt.datetime.now()
-    #fn_stamp=start.strftime('%Y-%m-%d_%H:%M:%S')
-    #logging.basicConfig(filename='test'+ fn_stamp +'.log',filemode='a',format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt='%H:%M:%S', level=logging.DEBUG)
-    
-    #stream=picamera.PiCameraCircularIO(camera, seconds=5)
-    #camera.start_recording(stream, format = 'h264')
+
                 
     currstate=0
     GPIO.add_event_detect(27, GPIO.BOTH, callback=triggercallback)    
@@ -51,7 +47,6 @@ def maintriggered():
             while ((dt.datetime.now()-start).seconds <200) and (istriggered==1):#(GPIO.input(27)==1):         
                 camera.annotate_text=dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
                 time.sleep(0.1)
-                #print(camera.frame)
                 if not g.closed:
                     g.write(str(camera.frame)+"\n")
     except KeyboardInterrupt:

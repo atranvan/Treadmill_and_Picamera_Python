@@ -63,7 +63,6 @@ def rotary_interrupt(A_or_B):
 def main():
     global rotaryCounter, LockRotary
     newCounter = 0
-    turnCounter = 0
     init_encoder()
     init_camera()
     start = dt.datetime.now()
@@ -83,7 +82,7 @@ def main():
         if(newCounter != 0):
 
             f.write(dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')+"\t"+str(rotaryCounter)+"\n")
-            print(newCounter, turnCounter)
+            print(newCounter)
     camera.stop_recording()
     #camera_stop_preview()
     f.close()

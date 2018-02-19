@@ -64,14 +64,15 @@ def main():
     start = dt.datetime.now()
     fn_stamp=start.strftime('%Y-%m-%d_%H:%M:%S')
     f=open(savepath+'treadmill'+ fn_stamp +'.csv','a')
-    end_session = start + datetime.timedelta(minutes = trainingDuration)
-    while (dt.datetime.now()-start).seconds < 10:#True:
+
+    while ((dt.datetime.now()-start).seconds)< trainingDuration*60:#True:
+        sleep(0.05)
         LockRotary.acquire()
         newCounter = rotaryCounter # get counter value
         LockRotary.release()
         if(newCounter != 0):
             f.write(dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')+"\t"+str(rotaryCounter)+"\n")
             print(newCounter)
-    camera.stop_recording()
-    #camera_stop_preview()
     f.close()
+
+main()

@@ -23,7 +23,7 @@ Current_B = 1
 LockRotary = threading.Lock()
 
 savepath="/home/pi/"
-trainingDuration = 15 # in minutes
+trainingDuration = 10 # in minutes
 
 #initializes interrupt handlers
 def init_encoder():

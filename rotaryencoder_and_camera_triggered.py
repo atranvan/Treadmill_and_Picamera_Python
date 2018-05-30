@@ -15,7 +15,7 @@ Current_B = 1
 
 LockRotary = threading.Lock()
 
-savepath="/home/pi/"
+savepath="/home/pi/ERAD19.2a/"
 
 #initializes interrupt handlers
 def init_encoder():
@@ -105,7 +105,7 @@ def maintriggered():
     GPIO.add_event_detect(27, GPIO.BOTH, callback=triggercallback)    
     try:
         while (True):
-            while ((dt.datetime.now()-start).seconds<20) and (istriggered==1):
+            while istriggered ==1: #((dt.datetime.now()-start).seconds<20) and (istriggered==1):
                 camera.annotate_text=dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
                 sleep(0.1)
                 LockRotary.acquire()
@@ -113,9 +113,9 @@ def maintriggered():
                 LockRotary.release()
                 if not g.closed:
                     g.write(str(camera.frame)+"\n")
-                if (newCounter != 0):
-                    if not f.closed:
-                        f.write(dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')+"\t"+str(rotaryCounter)+"\n")
+                #if (newCounter != 0):
+                if not f.closed:
+                    f.write(dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')+"\t"+str(rotaryCounter)+"\n")
 
     except KeyboardInterrupt:
         camera.stop_preview()

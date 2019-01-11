@@ -15,7 +15,8 @@ Current_B = 1
 
 LockRotary = threading.Lock()
 
-savepath="/home/pi/ERAD25.2a/"
+
+savepath="/home/pi/ERAD19.2a/"
 
 #initializes interrupt handlers
 def init_encoder():

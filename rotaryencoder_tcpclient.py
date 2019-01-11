@@ -10,6 +10,7 @@ import RPi.GPIO as GPIO
 import threading
 from time import sleep
 import datetime as dt
+import socket
 
 #GPIO ports: input 4 for Channel A, input 14 for Channel B
 Enc_A = 4
@@ -57,13 +58,22 @@ def rotary_interrupt(A_or_B):
         LockRotary.release()
     return
 
+def setup_client():
+	global s
+	TCP_IP='192.168.2.101'
+	TCP_PORT=65432
+	s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+	s.connect((TCP_IP,TCP_PORT))
+	BUFFER_SIZE = 20
+
 def main():
-    global rotaryCounter, LockRotary
+    global rotaryCounter, LockRotary, s
     newCounter = 0
     init_encoder()
     start = dt.datetime.now()
     fn_stamp=start.strftime('%Y-%m-%d_%H:%M:%S')
     f=open(savepath+'treadmill'+ fn_stamp +'.csv','a')
+    setup_client()
 
     while ((dt.datetime.now()-start).seconds)< trainingDuration*60:#True:
         sleep(0.05)
@@ -72,7 +82,10 @@ def main():
         LockRotary.release()
         if(newCounter != 0):
             f.write(dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')+"\t"+str(rotaryCounter)+"\n")
+            #s.send((str(newCounter)).encode())
+            s.send(bytes(str(newCounter)+" ","UTF-8"))
             print(newCounter)
     f.close()
+    s.close()
 
 main()

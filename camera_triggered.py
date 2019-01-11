@@ -6,7 +6,7 @@ import io
 
 GPIO.setwarnings(True)
 GPIO.setmode(GPIO.BCM)
-savepath="/home/pi/"
+savepath="/home/pi/ERAD24.2b/"
 
 #initializes pi camera
 def init_camera():
@@ -16,7 +16,7 @@ def init_camera():
     camera.framerate = 30
     print('camera initialized')
     camera.annotate_frame_num=True
-    camera.annotate_text=dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
+    #camera.annotate_text=dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
 
 def main():
     global camera
@@ -32,19 +32,18 @@ def main():
 
 def maintriggered():
     global camera, istriggered, vid_name, g,start,isrecording
-    isrecording=0
+    istriggered=0
     start = dt.datetime.now()
     init_camera()
+    
     GPIO.setup(27, GPIO.IN, pull_up_down = GPIO.PUD_DOWN) # input to detect start trigger
     istriggered = 0 # is the trigger input up
 
-
-                
     currstate=0
     GPIO.add_event_detect(27, GPIO.BOTH, callback=triggercallback)    
     try:
         while (True):
-            while ((dt.datetime.now()-start).seconds <200) and (istriggered==1):#(GPIO.input(27)==1):         
+            while istriggered==1:#(GPIO.input(27)==1):         
                 camera.annotate_text=dt.datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')
                 time.sleep(0.1)
                 if not g.closed:
